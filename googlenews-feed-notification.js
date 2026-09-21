@@ -7,15 +7,14 @@ const { DOMParser } = require('xmldom');
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
         {"feedname":"bengaluru","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, 
-        /*{"feedname":"some other city","url":"https://www.youtube.com/feeds/videos.xml?channel_id=UCco04pGIpOtfHePXG5MnB9g"}*/
+        /*{"feedname":"bengaluru 2","url":"https://news.google.com/rss/search?q=Bengaluru when:1d&hl=en-IN&gl=IN&ceid=IN:en} */
     ];
     
     const NTFY_URL = process.env.NTFY_URL; 
     let totalSentCount = 0; 
 
     // Loop through each channel feed URL
-    for (const feed of GOOGLE_NEWS_FEEDS) {
-        
+    for (const feed of GOOGLE_NEWS_FEEDS) {        
 
         try {
             const response = await fetch(feed.url);
@@ -77,7 +76,7 @@ const { DOMParser } = require('xmldom');
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-                console.log(published)
+                //console.log(published)
                 const bodyText = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n🎬 Click here: ${linkHref}`;
                 console.log(bodyText)
                 // Send to ntfy
