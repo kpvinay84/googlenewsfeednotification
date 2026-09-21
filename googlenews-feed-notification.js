@@ -99,7 +99,7 @@ const { DOMParser } = require('xmldom');
               } else {
                   console.error(`Failed to send notification for: ${feed.feedname}`);
               }
-                 
+              await new Promise(resolve => setTimeout(resolve, 1000));  // Wait for 1 second (1000 milliseconds) before moving to the next item   
             }
 
         } catch (error) {
