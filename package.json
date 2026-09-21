@@ -1,0 +1,12 @@
+{
+  "name": "googlenews-rss-ntfy",
+  "version": "1.0.0",
+  "description": "Daily Google News RSS to ntfy sender",
+  "main": "googlenews-feed-notification.js",
+  "scripts": {
+    "start": "node googlenews-feed-notification.js"
+  },
+  "dependencies": {
+    "xmldom": "^0.6.0"
+  }
+}
