@@ -21,9 +21,10 @@ const { DOMParser } = require('xmldom');
             const response = await fetch(feed.url);
             if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);          
            
-            console.log("✅ Feed retrieved! Parsing item blocks...");
-
             const rawText = await response.text();
+			console.log("✅ Feed retrieved! Parsing item blocks...");
+           
+			const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(rawText, "text/xml");
             
             // Take the top 10 latest feeds from this feed
