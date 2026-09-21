@@ -1,0 +1,29 @@
+name: Daily Google News RSS to ntfy
+
+on:
+  schedule:
+    # Runs every day at 00:05 AM UTC (Change this cron expression if needed)
+    - cron: '05 00 * * *'
+  workflow_dispatch: # Allows you to manually click "Run workflow" inside GitHub anytime
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script
+        env:
+          #NTFY_URL: https://ntfy.sh/star-suvarna     # Or set this as a GitHub Secret
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        #run: node YT-Feed-JS-Console-code.js   
+        run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
