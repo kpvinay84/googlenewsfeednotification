@@ -2,8 +2,8 @@ name: Daily Google News RSS to ntfy
 
 on:
   schedule:
-    # Runs every day at 00:05 AM UTC (Change this cron expression if needed)
-    - cron: '05 00 * * *'
+    # Runs every day at 6:47 AM IST (1:17 AM UTC) (Change this cron expression if needed)
+    - cron: '17 1 * * *'
   workflow_dispatch: # Allows you to manually click "Run workflow" inside GitHub anytime
 
 jobs:
@@ -25,5 +25,6 @@ jobs:
         env:
           #NTFY_URL: https://ntfy.sh/star-suvarna     # Or set this as a GitHub Secret
           NTFY_URL: ${{ secrets.NTFY_URL }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}   # 👈 Passes the cron string to Node.js
         #run: node YT-Feed-JS-Console-code.js   
         run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
