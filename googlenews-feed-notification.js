@@ -6,8 +6,8 @@ const { DOMParser } = require('xmldom');
     
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
-        {"feedname":"bengaluru","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, 
-        /*{"feedname":"bengaluru 2","url":"https://news.google.com/rss/search?q=Bengaluru when:1d&hl=en-IN&gl=IN&ceid=IN:en} */
+       /*{"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"},*/
+       {"feedname":"bengaluru search 1d","url":"https://news.google.com/rss/search?q=Bengaluru when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
     ];
     
     const NTFY_URL = process.env.NTFY_URL; 
