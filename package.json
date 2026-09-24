@@ -1,6 +1,7 @@
 {
   "name": "googlenews-rss-ntfy",
   "version": "1.0.0",
+  "type": "module",
   "description": "Daily Google News RSS to ntfy sender",
   "main": "googlenews-feed-notification.js",
   "scripts": {
@@ -9,6 +10,7 @@
     "startnodemondebug": "nodemon --inspect-brk googlenews-feed-notification.js"
   },
   "dependencies": {
+    "dotenv": "^18.0.3",
     "xmldom": "^0.6.0"
   },
   "devDependencies": {

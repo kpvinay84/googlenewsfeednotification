@@ -1,21 +1,23 @@
+import 'dotenv/config'; // 👈 MUST BE ON LINE 1 (For ES Modules)
 // Import DOMParser for Node.js (will be installed via npm)
-const { DOMParser } = require('xmldom');
-const triggerType = process.env.RUN_TRIGGER;
-const cronExpression = process.env.SCHEDULE_CRON;
-const dispatchAction = process.env.DISPATCH_ACTION;
+import { DOMParser } from 'xmldom';
+
 
 (async () => {
     
-    
+    const triggerType = process.env.RUN_TRIGGER;
+    const cronExpression = process.env.SCHEDULE_CRON;
+    const dispatchAction = process.env.DISPATCH_ACTION;
+    const NTFY_URL = process.env.NTFY_URL;
+
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
-       {"feedname":"bengaluru search 1d","url":"https://news.google.com/rss/search?q=Bengaluru when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
+       {"feedname":"bengaluru search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
     ];
-    
-    const NTFY_URL = process.env.NTFY_URL; 
+        
     let totalSentCount = 0; 
-
+    console.log(triggerType)
     // Loop through each channel feed URL
     for (const feed of GOOGLE_NEWS_FEEDS) {
         
@@ -47,12 +49,12 @@ const dispatchAction = process.env.DISPATCH_ACTION;
 			itemsArray.sort((a, b) => {
 				return new Date(b.pubDate) - new Date(a.pubDate);
 			});
-			
-			const entries = itemsArray.slice(0, 10).reverse();
+			var totalEntires = 10;
+			const entries = itemsArray.slice(0, totalEntires).reverse();
 			
             for (const entry of entries) {
                 // 1. link href
-              
+               let notifIndex = (--totalEntires) + 1; // it should go in reverse so that in ntfy the top most notif has the first index
                //const linkElement = entry.getElementsByTagName("link")[0];
                //const linkHref = linkElement ? linkElement.textContent : "";;
 			   const linkHref = entry.link;
@@ -80,8 +82,8 @@ const dispatchAction = process.env.DISPATCH_ACTION;
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-                console.log(published,triggerType)
-                const bodyText = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n🎬 Click here: ${linkHref}`;
+               
+                const bodyText = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n`;
                 console.log(bodyText)
                 // Send to ntfy
 
@@ -89,7 +91,7 @@ const dispatchAction = process.env.DISPATCH_ACTION;
                  const ntfyRes = await fetch(NTFY_URL, {
                   method: 'POST',
                   headers: {
-                      'Title': source,
+                      'Title': notifIndex+". "+source,
                       'Content-Type': 'text/plain',
                       //'Attach': mediaThumbnail
                   },
