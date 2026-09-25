@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 👈 Automatically kills the job if it hangs for more than 5 minutes
     steps:
-      - name: Checkout repository
+      - name: Pull latest code
         uses: actions/checkout@v5
 
       - name: Set up Node.js
@@ -26,8 +26,7 @@ jobs:
         run: npm install
 
       - name: Run script
-        env:
-          #NTFY_URL: https://ntfy.sh/star-suvarna     # Or set this as a GitHub Secret
+        env:          
           NTFY_URL: ${{ secrets.NTFY_URL }}
           RUN_TRIGGER: ${{ github.event_name }} # 👈 Captures the exact event type like schedule, workflow_dispatch, repository_dispatch
           SCHEDULE_CRON: ${{ github.event.schedule }}   # 👈 Passes the cron string to Node.js i.e. 57 13 * * *

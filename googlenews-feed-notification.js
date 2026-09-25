@@ -13,7 +13,7 @@ import { DOMParser } from 'xmldom';
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
-       {"feedname":"bengaluru search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
+       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
     ];
         
     let totalSentCount = 0; 
@@ -49,7 +49,7 @@ import { DOMParser } from 'xmldom';
 			itemsArray.sort((a, b) => {
 				return new Date(b.pubDate) - new Date(a.pubDate);
 			});
-			var totalEntires = 10;
+			var totalEntires = 1;
 			const entries = itemsArray.slice(0, totalEntires).reverse();
 			
             for (const entry of entries) {
@@ -82,9 +82,9 @@ import { DOMParser } from 'xmldom';
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-               
-                const bodyText = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n`;
-                console.log(bodyText)
+                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
+                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📝 Source:\n \u00A0\  \u00A0\ ${source}\n\n`;
+                console.log(bodyTextFull)
                 // Send to ntfy
 
                  // Send to ntfy
@@ -100,7 +100,7 @@ import { DOMParser } from 'xmldom';
 
               if (ntfyRes.ok) {
                   totalSentCount++;
-                  console.log(`Sent: ${feed.feedname}`);
+                  //console.log(`Sent: ${feed.feedname}`);
               } else {
                   console.error(`Failed to send notification for: ${feed.feedname}`);
               }
