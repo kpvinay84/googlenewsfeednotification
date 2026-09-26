@@ -49,7 +49,7 @@ import { DOMParser } from 'xmldom';
 			itemsArray.sort((a, b) => {
 				return new Date(b.pubDate) - new Date(a.pubDate);
 			});
-			var totalEntires = 1;
+			var totalEntires = 10;
 			const entries = itemsArray.slice(0, totalEntires).reverse();
 			
             for (const entry of entries) {
@@ -82,8 +82,8 @@ import { DOMParser } from 'xmldom';
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\n${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
-                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📝 Source:\n \u00A0\  \u00A0\ ${source}\n\n`;
+                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
+                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📝 Source:  ${source}\n\n`;
                 console.log(bodyTextFull)
                 // Send to ntfy
 
