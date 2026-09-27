@@ -13,7 +13,7 @@ import { DOMParser } from 'xmldom';
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
-       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
+       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
     ];
         
     let totalSentCount = 0; 
@@ -82,17 +82,20 @@ import { DOMParser } from 'xmldom';
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📝 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
-                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📝 Source:  ${source}\n\n`;
+                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n🏷️ Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
                 console.log(bodyTextFull)
-                // Send to ntfy
+                
+                //const shortLink = await shortenUrl(linkHref); 
+                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n🏷️ ${title}\n\n📖 Source:  ${source}  [link](${linkHref})\n\n`;
 
-                 // Send to ntfy
+
+                // Send to ntfy
                  const ntfyRes = await fetch(NTFY_URL, {
                   method: 'POST',
                   headers: {
                       'Title': notifIndex+". "+source,
                       'Content-Type': 'text/plain',
+                      "Markdown": "yes",
                       //'Attach': mediaThumbnail
                   },
                   body: bodyText
@@ -110,6 +113,24 @@ import { DOMParser } from 'xmldom';
         } catch (error) {
             console.error(`❌ Failed to process feed ${feed.feedname}:`, error.message);
         }
+    }
+    async function shortenUrl(longUrl) {
+          try {
+            // Encode the long URL to safely pass it as a query parameter
+            const apiUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+            
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+              console.error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const shortUrl = await response.text();
+            return shortUrl;
+          } catch (error) {
+            console.error("Error shortening URL:", error.message);
+            return ""; // Fallback to original URL on failure
+          }
     }
 
     console.log(`\n🎉 Process complete! Total notifications sent: ${totalSentCount}`);
