@@ -13,7 +13,7 @@ import { DOMParser } from 'xmldom';
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
-       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
+       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-bookmyshow+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
     ];
         
     let totalSentCount = 0; 
