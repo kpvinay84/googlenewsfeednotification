@@ -82,15 +82,15 @@ import { DOMParser } from 'xmldom';
                 //const source = sourceElement ? sourceElement.textContent : "";
 				const source = entry.source;					
 
-                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n🏷️ Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
+                const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
                 console.log(bodyTextFull)
                 
                 //const shortLink = await shortenUrl(linkHref); 
-                const bodyText = `${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n🏷️ ${title}\n\n📖 Source:  ${source}  [link](${linkHref})\n\n`;
+                const bodyText = `📅 ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📖 Source:  ${source}  [link](${linkHref})\n\n`;
 
 
                 // Send to ntfy
-                 const ntfyRes = await fetch(NTFY_URL, {
+                const ntfyRes = await fetch(NTFY_URL, {
                   method: 'POST',
                   headers: {
                       'Title': notifIndex+". "+source,
@@ -99,7 +99,7 @@ import { DOMParser } from 'xmldom';
                       //'Attach': mediaThumbnail
                   },
                   body: bodyText
-              });
+                });
 
               if (ntfyRes.ok) {
                   totalSentCount++;
@@ -108,6 +108,7 @@ import { DOMParser } from 'xmldom';
                   console.error(`Failed to send notification for: ${feed.feedname}`);
               }
               await new Promise(resolve => setTimeout(resolve, 1000));  // Wait for 1 second (1000 milliseconds) before moving to the next item
+            
             }
 
         } catch (error) {
