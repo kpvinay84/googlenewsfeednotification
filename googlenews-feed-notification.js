@@ -86,7 +86,7 @@ import { DOMParser } from 'xmldom';
                 console.log(bodyTextFull)
                 
                 //const shortLink = await shortenUrl(linkHref); 
-                const bodyText = `📅 ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📖 Source:  ${source}  [link](${linkHref})\n\n`;
+                const bodyText = `📅 ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📖 Source:  ${source}  [ | link | ](${linkHref})\n\n`;
 
 
                 // Send to ntfy
