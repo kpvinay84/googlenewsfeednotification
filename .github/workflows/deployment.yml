@@ -2,8 +2,8 @@ name: Daily Google News RSS to ntfy
 
 on:
   schedule:
-    # Runs every day at 6:47 AM IST (1:17 AM UTC) (Change this cron expression if needed)
-    - cron: '17 1 * * *'
+    # Runs every day at 11:47 AM IST (6:17 AM UTC) (Change this cron expression if needed)
+    - cron: '17 6 * * *'
   workflow_dispatch: # Allows you to manually click "Run workflow" inside GitHub anytime
   repository_dispatch:
     types: [trigger-cron-job-org]
