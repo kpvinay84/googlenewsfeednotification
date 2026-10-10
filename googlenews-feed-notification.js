@@ -13,7 +13,9 @@ import { DOMParser } from 'xmldom';
     // 📺 Add all your YouTube channel RSS feed URLs here
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
-       {"feedname":"bengaluru news search 1d","url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-bookmyshow+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"} 
+       {"feedname":"bengaluru news search 1d","feedtitle":"Google News",
+        "url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-bookmyshow+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+-site:x.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"
+       } 
     ];
         
     let totalSentCount = 0; 
@@ -50,14 +52,19 @@ import { DOMParser } from 'xmldom';
 				return new Date(b.pubDate) - new Date(a.pubDate);
 			});
 			var totalEntires = 10;
-			const entries = itemsArray.slice(0, totalEntires).reverse();
-			
+			const entries = itemsArray.slice(0, totalEntires);
+      let entriesLength = entries.length; // will decrement ass set to --
+			      
+            let contentList=[],contentBatch=""; // 3 feeds in one ntfy post
+            let feedIndex = 0;
             for (const entry of entries) {
                 // 1. link href
-               let notifIndex = (--totalEntires) + 1; // it should go in reverse so that in ntfy the top most notif has the first index
+               let notifIndex = ++feedIndex; // it should go in reverse so that in ntfy the top most notif has the first index
+               
                //const linkElement = entry.getElementsByTagName("link")[0];
                //const linkHref = linkElement ? linkElement.textContent : "";;
-			   const linkHref = entry.link;
+
+         const linkHref = entry.link;
 
                 // 2. published date
                 //const publishedElement = entry.getElementsByTagName("pubDate")[0];
@@ -83,36 +90,35 @@ import { DOMParser } from 'xmldom';
 				const source = entry.source;					
 
                 const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
-                console.log(bodyTextFull)
+                //console.log(bodyTextFull)
                 
                 //const shortLink = await shortenUrl(linkHref); 
-                const bodyText = `📅 ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n📝 ${title}\n\n📖 Source:  ${source}  [ | link | ](${linkHref})\n\n`;
+                const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n ${title}   [ | link | ](${linkHref})\n`;
 
+                contentBatch += bodyText;
+
+                if(feedIndex % 3 == 0){
+                  contentList.push(contentBatch);
+                  contentBatch = "";
+                }else if(entries.length == feedIndex){
+                  contentList.push(contentBatch);
+                }
 
                 // Send to ntfy
-                const ntfyRes = await fetch(NTFY_URL, {
-                  method: 'POST',
-                  headers: {
-                      'Title': notifIndex+". "+source,
-                      'Content-Type': 'text/plain',
-                      "Markdown": "yes",
-                      //'Attach': mediaThumbnail
-                  },
-                  body: bodyText
-                });
+               
+            }
+            //console.log(" contentList ",...contentList);
+            if(contentList.length){
+              let contentListReverse = contentList.reverse(); // so that the numbering in ntfy page is correct
+              for (const contentBatch of contentListReverse) {
+                   //console.log(contentBatch)
+                   await sendNTFY(feed.feedtitle,undefined,contentBatch);
+              }    
 
-              if (ntfyRes.ok) {
-                  totalSentCount++;
-                  //console.log(`Sent: ${feed.feedname}`);
-              } else {
-                  console.error(`Failed to send notification for: ${feed.feedname}`);
-              }
-              await new Promise(resolve => setTimeout(resolve, 1000));  // Wait for 1 second (1000 milliseconds) before moving to the next item
-            
             }
 
         } catch (error) {
-            console.error(`❌ Failed to process feed ${feed.feedname}:`, error.message);
+            console.error(`❌ Failed to process feed ${feed.feedname}:`, error.stack);
         }
     }
     async function shortenUrl(longUrl) {
@@ -129,10 +135,55 @@ import { DOMParser } from 'xmldom';
             const shortUrl = await response.text();
             return shortUrl;
           } catch (error) {
-            console.error("Error shortening URL:", error.message);
+            console.error("Error shortening URL:", error.stack);
             return ""; // Fallback to original URL on failure
           }
     }
+
+    async function sendNTFY(title, mediaThumbnail, body){
+
+
+        console.log(body);
+        let ntfyHeaders=  { 
+                    'Title': title,
+                    'Content-Type': 'text/plain',
+                    "Markdown": "yes",
+                   
+                }
+        if(mediaThumbnail){
+            ntfyHeaders["Attach"] = mediaThumbnail
+        }
+        /*const ntfyHeaders = new Headers();
+
+        // 2. Append the required ntfy custom headers
+        ntfyHeaders.append("Title", title);
+        ntfyHeaders.append("X-Markdown", "yes"); // Use X-Markdown to prevent proxy stripping
+        ntfyHeaders.append("Markdown", "yes");   // Backup flag for native ntfy parsing
+
+        if (mediaThumbnail) {
+            ntfyHeaders.append("Attach", mediaThumbnail);
+        }
+
+        const rawBodyBytes = new TextEncoder().encode(body);*/
+
+         const ntfyRes = await fetch(NTFY_URL, {
+                  method: 'POST',
+                  headers: ntfyHeaders,
+                  body: body
+                });
+
+              if (ntfyRes.ok) {
+                  totalSentCount++;
+                  console.log(`Sent to NTFY: ${title}`);
+              } else {
+                  const errorText = await ntfyRes.text();
+                  console.error(`NTFY error for ${title}, (${ntfyRes.status}): ${errorText}`);
+              }
+              await new Promise(resolve => setTimeout(resolve, 1000));  // Wait for 1 second (1000 milliseconds) before moving to the next item
+            
+
+    }
+
 
     console.log(`\n🎉 Process complete! Total notifications sent: ${totalSentCount}`);
 })();
