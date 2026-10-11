@@ -14,7 +14,7 @@ import { DOMParser } from 'xmldom';
     const GOOGLE_NEWS_FEEDS = [
        /* {"feedname":"bengaluru geo","url":"https://news.google.com/rss/headlines/section/geo/Bengaluru?hl=en-IN&gl=IN&ceid=IN:en"}, */
        {"feedname":"bengaluru news search 1d","feedtitle":"Google News",
-        "url":"https://news.google.com/rss/search?q=Bengaluru+-real+-estate+-property+-apartment+-housing+-jobs+-careers+-hiring+-openings+-recruitment+-facebook+-instagram+-bookmyshow+-site:flightradar24.com+-site:cricbuzz.com+-site:constructionweekonline.in+-site:in.bookmyshow.com+-site:x.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"
+        "url":"https://news.google.com/rss/search?q=Bengaluru+-facebook+-instagram+-bookmyshow+-jobs+-careers+-hiring+-openings+-recruitment+-real+-estate+-property+-apartment+-housing+-zigwheels+-site:x.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en"
        } 
     ];
         
@@ -51,7 +51,7 @@ import { DOMParser } from 'xmldom';
 			itemsArray.sort((a, b) => {
 				return new Date(b.pubDate) - new Date(a.pubDate);
 			});
-			var totalEntires = 10;
+			var totalEntires = 12;
 			const entries = itemsArray.slice(0, totalEntires);
       let entriesLength = entries.length; // will decrement ass set to --
 			      
@@ -93,18 +93,18 @@ import { DOMParser } from 'xmldom';
                 //console.log(bodyTextFull)
                 
                 //const shortLink = await shortenUrl(linkHref); 
-                const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}\n\n ${title}   [ | link | ](${linkHref})\n`;
+                const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
+                const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', timeStyle: 'short' })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
 
                 contentBatch += bodyText;
 
-                if(feedIndex % 3 == 0){
+                if(feedIndex % 4 == 0){
                   contentList.push(contentBatch);
                   contentBatch = "";
                 }else if(entries.length == feedIndex){
                   contentList.push(contentBatch);
                 }
-
-                // Send to ntfy
+                
                
             }
             //console.log(" contentList ",...contentList);
@@ -142,7 +142,8 @@ import { DOMParser } from 'xmldom';
 
     async function sendNTFY(title, mediaThumbnail, body){
 
-
+        const payloadSize = Buffer.byteLength(body, 'utf8');
+        console.log(`Current body size: ${payloadSize} bytes`);
         console.log(body);
         let ntfyHeaders=  { 
                     'Title': title,
