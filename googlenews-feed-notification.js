@@ -20,7 +20,7 @@ import { DOMParser } from "xmldom";
       feedname: "The Ken news",
       feedtitle: "THE KEN",
       url: "https://the-ken.com/feed/",
-    },
+    }
   ];
 
   let totalSentCount = 0;
@@ -28,6 +28,8 @@ import { DOMParser } from "xmldom";
   // Loop through each channel feed URL
   for (const feed of NEWS_FEEDS) {
     try {
+
+      
       const response = await fetch(feed.url);
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
 
@@ -55,7 +57,7 @@ import { DOMParser } from "xmldom";
         itemsArray.sort((a, b) => {
           return new Date(b.pubDate) - new Date(a.pubDate);
         });
-        var totalEntires = 12;
+        var totalEntires = 10;
         const entries = itemsArray.slice(0, totalEntires);
         let entriesLength = entries.length; // will decrement ass set to --
 
@@ -118,7 +120,7 @@ import { DOMParser } from "xmldom";
             await sendNTFY(feed.feedtitle, undefined, contentBatch);
           }
         }
-      } else {
+      } else if (feed.feedtitle == "THE KEN") {
         console.log("Inside Else");
         const itemsArray = Array.from(xmlDoc.getElementsByTagName("item")).map(
           (item) => {
@@ -142,7 +144,9 @@ import { DOMParser } from "xmldom";
           let feedContent = `\n **${todaysItems.length - feedIndex++}.** ${feed.feedtitle} - ${new Date(item.pubDate).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}\n ${item.title}   [ | link | ](${item.link})\n`;
           await sendNTFY(feed.feedtitle, undefined, feedContent);
         }
-      }
+      } 
+
+
     } catch (error) {
       console.error(`❌ Failed to process feed ${feed.feedname}:`, error.stack);
     }
