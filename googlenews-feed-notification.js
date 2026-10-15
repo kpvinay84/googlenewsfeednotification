@@ -122,6 +122,15 @@ import { DOMParser } from "xmldom";
         }
       } else if (feed.feedtitle == "THE KEN") {
         console.log("Inside Else");
+
+        let now = new Date();
+        let presentTime = parseInt(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata",hour: "2-digit",hour12: false}),10);
+        // Uses a strict 24-hour cycle (0 to 23)
+        let targetTime = 8; // 8AM
+        if(presentTime > targetTime){
+          return;
+        }
+
         const itemsArray = Array.from(xmlDoc.getElementsByTagName("item")).map(
           (item) => {
             return {
@@ -132,12 +141,16 @@ import { DOMParser } from "xmldom";
           },
         );
 
-        const todayString = new Date().toLocaleDateString("en-IN", {timeZone: "Asia/Kolkata",});
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const yesterdayString = yesterday.toLocaleDateString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        });
         const todaysItems = itemsArray.filter((item) => {
           const itemDateString = new Date(item.pubDate).toLocaleDateString(
             "en-IN",  { timeZone: "Asia/Kolkata" },
           );
-          return itemDateString === todayString;
+          return itemDateString === yesterdayString;
         });
         let feedIndex = 0;
         for (const item of todaysItems) {
