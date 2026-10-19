@@ -59,10 +59,10 @@ import { DOMParser } from "xmldom";
         });
         var totalEntires = 10;
         const entries = itemsArray.slice(0, totalEntires);
-        let entriesLength = entries.length; // will decrement ass set to --
+        let entriesLength = entries.length; // 
 
         let contentList = [],
-          contentBatch = ""; // 3 feeds in one ntfy post
+          contentBatch = "|||||||||||||||||||||||||||||||||||||||||||||||||||"; // 5 feeds in one ntfy post
         let feedIndex = 0;
         for (const entry of entries) {
           // 1. link href
@@ -97,7 +97,7 @@ import { DOMParser } from "xmldom";
           const source = entry.source;
 
           const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}\n\n📝 Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
-          //console.log(bodyTextFull)
+          console.log(bodyTextFull)
 
           //const shortLink = await shortenUrl(linkHref);
           const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
