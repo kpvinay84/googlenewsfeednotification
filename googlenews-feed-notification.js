@@ -14,7 +14,7 @@ import { DOMParser } from "xmldom";
     {
       feedname: "bengaluru news search 1d",
       feedtitle: "Google News",
-      url: "https://news.google.com/rss/search?q=Bengaluru+-facebook+-instagram+-bookmyshow+-jobs+-careers+-hiring+-openings+-recruitment+-real+-estate+-property+-apartment+-housing+-zigwheels+-site:x.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en",
+      url: "https://news.google.com/rss/search?q=Bengaluru+-facebook+-instagram+-bookmyshow+-jobs+-careers+-hiring+-openings+-recruitment+-real+-estate+-property+-apartment+-housing+-zigwheels+-site:x.com+-site:higher.gs.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en",
     },
     {
       feedname: "The Ken news",
@@ -96,7 +96,7 @@ import { DOMParser } from "xmldom";
           //const source = sourceElement ? sourceElement.textContent : "";
           const source = entry.source;
 
-          const bodyTextFull = `📅 Uploaded: ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}\n\n📝 Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
+          const bodyTextFull = `📅 ${notifIndex}. Uploaded: ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}\n\n📝 Title:\n${title}\n\n📖 Source:\u00A0\ ${source}\n\n 🔗 Click here:\n${linkHref}\n\n `;
           console.log(bodyTextFull)
 
           //const shortLink = await shortenUrl(linkHref);
