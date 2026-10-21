@@ -100,9 +100,13 @@ import { DOMParser } from "xmldom";
           console.log(bodyTextFull)
 
           //const shortLink = await shortenUrl(linkHref);
-          const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
-          const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
 
+          if(/^[\x20-\x7E]*$/.test(title)){   /* only English titles as encodeURIComponent will give large characters */
+            const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
+            const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
+          }else{
+            const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title} \n`;
+          }
           contentBatch += bodyText;
 
           if (feedIndex % 5 == 0) {
