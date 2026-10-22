@@ -100,12 +100,12 @@ import { DOMParser } from "xmldom";
           console.log(bodyTextFull)
 
           //const shortLink = await shortenUrl(linkHref);
-
+          let bodyText = "";
           if(/^[\x20-\x7E]*$/.test(title)){   /* only English titles as encodeURIComponent will give large characters */
             const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
-            const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
+            bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
           }else{
-            const bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title} \n`;
+            bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title} \n`;
           }
           contentBatch += bodyText;
 
@@ -125,7 +125,7 @@ import { DOMParser } from "xmldom";
           }
         }
       } else if (feed.feedtitle == "THE KEN") {
-        console.log("Inside Else");
+        console.log("Inside THE KEN");
 
         let now = new Date();
         let presentTime = parseInt(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata",hour: "2-digit",hour12: false}),10);
