@@ -101,7 +101,7 @@ import { DOMParser } from "xmldom";
 
           //const shortLink = await shortenUrl(linkHref);
           let bodyText = "";
-          if(/^[\x20-\x7E]*$/.test(title)){   /* only English titles as encodeURIComponent will give large characters */
+          if (/^[A-Za-z0-9\s\p{P}\p{S}]*$/u.test(title)) {   /* only English titles as encodeURIComponent will give large characters */
             const googleSearchLink = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
             bodyText = `\n **${notifIndex}.** ${source} - ${new Date(published).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", timeStyle: "short" })}\n ${title}   [ | link | ](${googleSearchLink})\n`;
           }else{
