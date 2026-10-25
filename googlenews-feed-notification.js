@@ -14,7 +14,7 @@ import { DOMParser } from "xmldom";
     {
       feedname: "bengaluru news search 1d",
       feedtitle: "Google News",
-      url: "https://news.google.com/rss/search?q=Bengaluru+-facebook+-instagram+-bookmyshow+-jobs+-careers+-hiring+-openings+-recruitment+-real+-estate+-property+-apartment+-housing+-zigwheels+-site:x.com+-site:higher.gs.com+-site:skybet.com+when:1d&hl=en-IN&gl=IN&ceid=IN:en",
+      url: "https://news.google.com/rss/search?q=Bengaluru+-facebook+-instagram+-bookmyshow+-jobs+-careers+-hiring+-openings+-recruitment+-real+-estate+-property+-apartment+-housing+-zigwheels+-site:x.com+-site:higher.gs.com+-site:skybet.com+-olx.in+when:1d&hl=en-IN&gl=IN&ceid=IN:en",
     },
     {
       feedname: "The Ken news",
