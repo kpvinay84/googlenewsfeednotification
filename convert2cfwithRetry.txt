@@ -1,0 +1,157 @@
+wrangler.toml
+
+name = "rss-feed-queue-worker"
+main = "src/index.js"
+compatibility_date = "2026-10-26"
+
+# 1. Define the Cron Trigger to kick off at 6 AM daily
+[triggers]
+crons = ["0 6 * * *"]
+
+# 2. Create and bind the Queue
+[[queues.producers]]
+binding = "RSS_QUEUE"
+queue = "rss-fetch-queue"
+
+# Consumer 1: The Main Process Queue
+[[queues.consumers]]
+queue = "rss-fetch-queue"
+# Process 1 message at a time to isolate errors
+max_batch_size = 1 
+# Wait up to 1 second to batch (not needed for single triggers)
+max_batch_timeout = 1 
+# How many times Cloudflare should try before giving up completely
+max_retries = 3 
+# Crucial: How long to wait before trying a failed message again (10 minutes)
+dead_letter_queue = "rss-failed-dlq" # Optional: where dead messages go after 3 tries
+
+# Consumer 2: The Dead Letter Queue (DLQ)
+[[queues.consumers]]
+queue = "rss-failed-dlq"
+max_batch_size = 1
+
+
+Worker Script (src/index.js)
+
+export default {
+  // --- PART A: THE PRODUCER (Fires at 6 AM) ---
+  async scheduled(event, env, ctx) {
+    console.log("6 AM Cron triggered. Adding task to Queue...");
+    
+    await env.RSS_QUEUE.send({
+      task: "fetch_rss_feed",
+      timestamp: Date.now()
+    });
+    
+    console.log("Task successfully queued.");
+  },
+
+  // --- PART B: THE CONSUMER (Processes both Queues) ---
+  async queue(batch, env, ctx) {
+    
+    // CASE 1: The message came from the Dead Letter Queue (All retries failed)
+    if (batch.queue === "rss-failed-dlq") {
+      for (const message of batch.messages) {
+        const failedTask = message.body;
+        console.error(`DLQ Alert Triggered for task: ${failedTask.task}`);
+
+        // Send a critical alert to your phone/system via ntfy
+        await fetch(env.NTFY_URL, {
+          method: 'POST',
+          headers: {
+            'X-Title': '🚨 RSS Sync CRITICAL Failure',
+            'X-Priority': '5', // High priority in ntfy
+            'X-Tags': 'warning,rss'
+          },
+          body: `Task "${failedTask.task}" initiated at ${new Date(failedTask.timestamp).toLocaleTimeString()} failed all retry attempts. The target server link is permanently down or broken right now.`
+        });
+
+        // Clear it safely out of the DLQ so it doesn't repeat
+        message.ack();
+      }
+      return; // Exit here since DLQ processing is complete
+    }
+
+    // CASE 2: The message came from the main processing queue
+    if (batch.queue === "rss-fetch-queue") {
+      for (const message of batch.messages) {
+        try {
+          console.log(`Processing queued task: ${message.body.task}`);
+          
+          const response = await fetch('https://example.com');
+          
+          // If it's a 503, throw a specific retryable error
+          if (response.status === 503) {
+            throw new Error("RETRYABLE_503");
+          }
+          
+          // If it's another HTTP error, do NOT retry (explicitly acknowledge)
+          if (!response.ok) {
+            console.error(`Permanent HTTP error ${response.status}. Skipping retries.`);
+            message.ack(); 
+            continue;
+          }
+
+          // Success logic (Send normal notification to your NTFY_URL)
+          const feedData = await response.text();
+          await fetch(env.NTFY_URL, {
+            method: 'POST',
+            headers: {
+              'X-Title': '✅ RSS Sync Success',
+              'X-Tags': 'white_check_mark'
+            },
+            body: `RSS Feed updated successfully!`
+          });
+
+          // Successfully completed
+          message.ack();
+
+        } catch (error) {
+          if (error.message === "RETRYABLE_503") {
+            console.warn("Target server returned 503. Telling Cloudflare Queue to retry in 10 mins.");
+            // Wait 10 minutes (600 seconds) before trying this message again
+            message.retry({ delaySeconds: 600 }); 
+          } else {
+            console.error("Fatal processing error:", error.message);
+            // Let unexpected crashes throw normally to utilize standard queue retries
+            throw error; 
+          }
+        }
+      }
+    }
+  }
+};
+
+
+
+Create the Queue via Dashboard / CLI and Deploy
+
+# 1. Create the primary queue
+npx wrangler queues create rss-fetch-queue
+
+# 2. Create an optional Dead Letter Queue (where messages go if they fail 3 times)
+npx wrangler queues create rss-failed-dlq
+
+# 3. Deploy your worker code
+npx wrangler deploy
+
+
+When message.retry({ delaySeconds: 600 }) is invoked, the active Cloudflare V8 worker instance terminates immediately. You stop being billed for CPU cycles. Cloudflare's infrastructure holds onto that message safely in storage for 10 minutes, and then wakes up a completely fresh worker instance to try again at 6:10 AM.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

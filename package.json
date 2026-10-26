@@ -8,7 +8,7 @@
     "start": "node googlenews-feed-notification.js",
     "startdebug": "node --inspect-brk googlenews-feed-notification.js",
     "startnodemondebug": "nodemon --inspect-brk googlenews-feed-notification.js",
-    "check":"node --check googlenews-feed-notification.js"
+    "check": "node --check googlenews-feed-notification.js && node -e \"require('./package.json')\" &&  node check.js"
   },
   "dependencies": {
     "dotenv": "^18.0.3",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "cross-env": "^10.1.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "yaml": "^2.9.1"
   }
 }

@@ -27,6 +27,7 @@ jobs:
         run: npm install
 
       - name: Run script (Retry ONLY on 503 errors)
+        id: retry_script # 👈 Added an ID so we can track this specific step's status
         uses: nick-fields/retry@v3
         env:          
           NTFY_URL: ${{ secrets.NTFY_URL }}
@@ -44,3 +45,19 @@ jobs:
           #run: node YT-Feed-JS-Console-code.js   
           #run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
           command: npm start
+
+
+         # --- DEAD LETTER FALLBACK STEP ---
+      - name: Send Critical Alert on Failure
+        # This condition ensures this step runs ONLY if the script step above failed all retries
+        if: ${{ failure() && steps.retry_script.outcome == 'failure' }}
+        env:
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+        run: |
+          curl -X POST \
+               -H "Content-Type: text/plain; charset=utf-8" \
+               -H "Title: 🚨 Google News Failure" \
+               -H "Priority: 5" \
+               -H "Tags: warning,down" \
+               -d "The Google News Feed Notification workflow failed all retry attempts. The target server link is down or broken right now." \
+               $NTFY_URL
