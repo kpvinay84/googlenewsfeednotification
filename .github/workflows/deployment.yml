@@ -41,8 +41,8 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 3
-          # Wait 10 minutes (600,000 ms) between retries without charging you for idle time
-          retry_delay_in_ms: 600000 
+          # Wait 15 minutes between retries without charging you for idle time
+          retry_wait_seconds: 900 
           # Only trigger a retry if your Node script triggers process.exit(53)
           retry_on_exit_code: 53
           # Executes your npm start command exactly as before

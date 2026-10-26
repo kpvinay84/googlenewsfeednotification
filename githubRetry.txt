@@ -1,0 +1,98 @@
+We will use GitHub Environments with a Wait Timer. 
+When a job uses an environment with a wait timer, GitHub completely spins down the runner, pauses the workflow inside their cloud infrastructure for 10 minutes (which is completely free), and then boots up a brand-new runner only when the 10 minutes are up.
+
+
+Create the Environment in GitHub Settings
+Before changing your YAML, you must add the timer rule inside your GitHub repository browser interface:
+1. Go to your repository on GitHub.
+2. Click Settings ⚙️ → Environments (in the left sidebar).
+3. Click New environment and name it retry-delay.
+4. Check the box for Wait timer.
+5. Set the delay duration to 10 minutes.
+6. Click Save protection rules.
+
+
+Update your deployment.yaml Workflow
+Instead of using the nick-fields/retry step wrapper, we will split your workflow into two jobs. Job 1 tries to run your script. If it fails with exit code 53, Job 2 triggers, binds to the retry-delay environment to pause for free, and runs your script again.
+
+the if: conditional condition sits at the job level, not the step level.
+If the condition (failure() && ...) evaluates to false, GitHub skips the entire job before it ever assigns a runner or boots up a machine. It completely bypasses all the steps inside it, meaning:
+
+
+name: Deploy and Retry Script
+
+on:
+  workflow_dispatch:
+  # (Your other triggers like schedule or repository_dispatch go here)
+
+jobs:
+  # --- FIRST ATTEMPT ---
+  first_attempt:
+    runs-on: ubuntu-latest
+    outputs:
+      exit_code: ${{ steps.run_script.outputs.exit_code }}
+    steps:
+      - name: Pull latest code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script
+        id: run_script
+        continue-on-error: true # Prevents the job from hard-failing instantly
+        env:          
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+          RUN_TRIGGER: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+          DISPATCH_ACTION: ${{ github.event.action }}
+        run: |
+          # Run script and save the exact exit code
+          set +e
+          npm start
+          CODE=$?
+          echo "exit_code=$CODE" >> $GITHUB_OUTPUT
+          
+          # If it succeeded or failed with something other than 53, exit normally
+          if [ $CODE -eq 0 ]; then
+            exit 0
+          elif [ $CODE -eq 53 ]; then
+            echo "Caught 53 (503 error). Requesting a free retry delay."
+            exit 1 # Fail the job so the next retry job knows to run
+          else
+            echo "Script failed with critical code $CODE. Aborting."
+            exit $CODE
+          fi
+
+  # --- SECOND ATTEMPT (Runs 10 minutes later for FREE) ---
+  second_attempt:
+    needs: first_attempt
+    if: ${{ failure() && needs.first_attempt.outputs.exit_code == '53' }}
+    runs-on: ubuntu-latest
+    environment: retry-delay # 👈 This causes GitHub to pause for 10 mins for free
+    steps:
+      - name: Pull latest code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run script retry
+        env:          
+          NTFY_URL: ${{ secrets.NTFY_URL }}
+          RUN_TRIGGER: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+          DISPATCH_ACTION: ${{ github.event.action }}
+        run: npm start
