@@ -30,31 +30,25 @@ jobs:
       # - name: Verify Code Syntax
       #   run: npm run check
 
-      - name: Run script (Retry ONLY on 503 errors)
+      - name: Run script #(Retry ONLY on 503 errors)
         id: retry_script # 👈 Added an ID so we can track this specific step's status
-        uses: nick-fields/retry@v3
+        # uses: nick-fields/retry@v3
         env:          
           NTFY_URL: ${{ secrets.NTFY_URL }}
           RUN_TRIGGER: ${{ github.event_name }} # 👈 Captures the exact event type like schedule, workflow_dispatch, repository_dispatch
           SCHEDULE_CRON: ${{ github.event.schedule }}   # 👈 Passes the cron string to Node.js i.e. 57 13 * * *
           DISPATCH_ACTION: ${{ github.event.action }} # 👈 Captures the action/type name ("Trigger GitHub Google News Notification Workflow") during a repository dispatch
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          # Wait 15 minutes between retries without charging you for idle time
-          retry_wait_seconds: 900 
-          # Only trigger a retry if your Node script triggers process.exit(53)
-          retry_on_exit_code: 53
-          # Executes your npm start command exactly as before
+       
           #run: node YT-Feed-JS-Console-code.js   
-          #run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
-          command: npm start
+          run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
+         
 
 
          # --- DEAD LETTER FALLBACK STEP ---
       - name: Send Critical Alert on Failure
         # This condition ensures this step runs ONLY if the script step above failed all retries
-        if: ${{ failure() && steps.retry_script.outcome == 'failure' }}
+        #if: ${{ failure() && steps.retry_script.outcome == 'failure' }}
+        if: ${{ failure() }}
         env:
           NTFY_URL: ${{ secrets.NTFY_URL }}
         run: |
