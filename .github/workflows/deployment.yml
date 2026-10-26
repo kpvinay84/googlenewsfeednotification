@@ -26,11 +26,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run script
+      - name: Run script (Retry ONLY on 503 errors)
+        uses: nick-fields/retry@v3
         env:          
           NTFY_URL: ${{ secrets.NTFY_URL }}
           RUN_TRIGGER: ${{ github.event_name }} # 👈 Captures the exact event type like schedule, workflow_dispatch, repository_dispatch
           SCHEDULE_CRON: ${{ github.event.schedule }}   # 👈 Passes the cron string to Node.js i.e. 57 13 * * *
           DISPATCH_ACTION: ${{ github.event.action }} # 👈 Captures the action/type name ("Trigger GitHub Google News Notification Workflow") during a repository dispatch
-        #run: node YT-Feed-JS-Console-code.js   
-        run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          # Wait 10 minutes (600,000 ms) between retries without charging you for idle time
+          retry_delay_in_ms: 600000 
+          # Only trigger a retry if your Node script triggers process.exit(53)
+          retry_on_exit_code: 53
+          # Executes your npm start command exactly as before
+          #run: node YT-Feed-JS-Console-code.js   
+          #run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
+          command: npm start

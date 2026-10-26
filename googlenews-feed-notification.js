@@ -26,9 +26,9 @@ import { DOMParser } from "xmldom";
   let totalSentCount = 0;
   console.log(triggerType);
   // Loop through each channel feed URL
+  let errorFree = true,exitCode = 0;
   for (const feed of NEWS_FEEDS) {
     try {
-
       
       const response = await fetch(feed.url);
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -159,6 +159,7 @@ import { DOMParser } from "xmldom";
         let feedIndex = 0;
         for (const item of todaysItems) {
           let feedContent = `\n **${todaysItems.length - feedIndex++}.** ${feed.feedtitle} - ${new Date(item.pubDate).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}\n ${item.title}   [ | link | ](${item.link})\n`;
+          //console.log(feedContent);
           await sendNTFY(feed.feedtitle, undefined, feedContent);
         }
       } 
@@ -166,7 +167,17 @@ import { DOMParser } from "xmldom";
 
     } catch (error) {
       console.error(`❌ Failed to process feed ${feed.feedname}:`, error.stack);
+      exitCode = 1;
+      if (error.message && error.message.includes('503')) {
+        console.error(`::error::Server is temporarily down (503). Triggering GitHub retry...`);
+        exitCode = 53;
+      }
+      errorFree = false;
     }
+    if(!errorFree){
+       process.exit(exitCode); 
+    }
+
   }
   async function shortenUrl(longUrl) {
     try {
@@ -212,22 +223,23 @@ import { DOMParser } from "xmldom";
 
         const rawBodyBytes = new TextEncoder().encode(body);*/
 
-    const ntfyRes = await fetch(NTFY_URL, {
-      method: "POST",
-      headers: ntfyHeaders,
-      body: body,
-    });
+      const ntfyRes = await fetch(NTFY_URL, {
+        method: "POST",
+        headers: ntfyHeaders,
+        body: body,
+      });
 
-    if (ntfyRes.ok) {
-      totalSentCount++;
-      console.log(`Sent to NTFY: ${title}`);
-    } else {
-      const errorText = await ntfyRes.text();
-      console.error(
-        `NTFY error for ${title}, (${ntfyRes.status}): ${errorText}`,
-      );
-    }
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second (1000 milliseconds) before moving to the next item
+      if (ntfyRes.ok) {
+        totalSentCount++;
+        console.log(`Sent to NTFY: ${title}`);
+      } else {
+        const errorText = await ntfyRes.text();
+        console.error(
+          `NTFY error for ${title}, (${ntfyRes.status}): ${errorText}`,
+        );
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second (1000 milliseconds) before moving to the next item
   }
 
   console.log(

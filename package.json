@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node googlenews-feed-notification.js",
     "startdebug": "node --inspect-brk googlenews-feed-notification.js",
-    "startnodemondebug": "nodemon --inspect-brk googlenews-feed-notification.js"
+    "startnodemondebug": "nodemon --inspect-brk googlenews-feed-notification.js",
+    "check":"node --check googlenews-feed-notification.js"
   },
   "dependencies": {
     "dotenv": "^18.0.3",
