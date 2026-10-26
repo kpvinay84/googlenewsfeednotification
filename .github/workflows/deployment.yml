@@ -40,7 +40,7 @@ jobs:
           DISPATCH_ACTION: ${{ github.event.action }} # 👈 Captures the action/type name ("Trigger GitHub Google News Notification Workflow") during a repository dispatch
        
           #run: node YT-Feed-JS-Console-code.js   
-          run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
+        run: npm start  # By changing it to run: npm start, GitHub Actions will look inside your package.json, find the "start" script, and execute whatever command is written there
          
 
 
