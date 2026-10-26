@@ -25,6 +25,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        # run: npm install --production
+
+      # - name: Verify Code Syntax
+      #   run: npm run check
 
       - name: Run script (Retry ONLY on 503 errors)
         id: retry_script # 👈 Added an ID so we can track this specific step's status
